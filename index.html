@@ -1,0 +1,723 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>ใบสำคัญรับเงิน — Payment Receipt</title>
+<link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;600;700&family=Noto+Serif+Thai:wght@400;700&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#f5f4f0;--paper:#fff;--ink:#0F1B2D;--ink2:#5B6B82;--ink3:#9aa3b0;--brd:#e2ddd4;--brd2:#ccc5b9;--red:#C0392B;--grn:#1d6f42;--grn2:#e8f3ed;--blu:#1a5fa8;--blu2:#e8f0fa;--amb:#9a6200;--amb2:#fef8ec;--r:6px}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--bg);font-family:Sarabun,sans-serif;color:var(--ink);font-size:14px;line-height:1.6}
+.topbar{background:var(--ink);color:#fff;padding:7px 14px;display:flex;align-items:center;gap:8px;position:sticky;top:0;z-index:100;flex-wrap:wrap}
+.topbar .logo{font-family:'Noto Serif Thai',serif;font-weight:700;font-size:14px}
+.sep{flex:1}
+.tb{padding:5px 11px;border-radius:var(--r);font-size:11px;font-weight:600;cursor:pointer;border:1px solid rgba(255,255,255,.2);background:transparent;color:#fff;font-family:inherit;transition:.15s;white-space:nowrap}
+.tb:hover{background:rgba(255,255,255,.1)}
+.tb.primary{background:var(--grn);border-color:var(--grn)}.tb.amber{background:var(--amb);border-color:var(--amb)}
+.tb.gmail{background:#d93025;border-color:#d93025}.tb.outlook{background:#0072c6;border-color:#0072c6}
+.badge{background:rgba(255,255,255,.18);padding:1px 7px;border-radius:99px;font-size:10px;margin-left:3px}
+.paper-wrap{max-width:900px;margin:16px auto;padding:0 12px}
+.paper{background:var(--paper);border:1px solid var(--brd);border-radius:8px;padding:36px 44px;position:relative;box-shadow:0 1px 6px rgba(0,0,0,.06)}
+@media(max-width:700px){.paper{padding:20px 14px}}
+.doc-hd{text-align:center;margin-bottom:24px;position:relative}
+.doc-hd h1{font-family:'Noto Serif Thai',serif;font-size:20px;font-weight:700}
+.seal{position:absolute;top:-12px;right:-12px;width:76px;height:76px;border-radius:50%;border:3px solid var(--red);display:flex;align-items:center;justify-content:center;transform:rotate(-12deg);opacity:.15;font-family:'Noto Serif Thai',serif;font-size:10px;color:var(--red);font-weight:700;text-align:center;line-height:1.2}
+.doc-meta{display:flex;justify-content:flex-end;gap:12px;margin-top:8px;font-size:13px;color:var(--ink2)}
+.frow{display:flex;align-items:baseline;gap:5px;margin-bottom:8px;flex-wrap:wrap;font-size:14px}
+.frow label{color:var(--ink2);white-space:nowrap;font-size:12px}
+.frow input,.frow select{border:none;border-bottom:1.5px solid var(--brd2);background:transparent;font-family:inherit;font-size:13px;color:var(--ink);padding:2px 4px;outline:none;min-width:60px}
+.frow input:focus{border-color:var(--blu)}
+.w-sm{width:90px}.w-md{width:160px}.w-lg{width:240px}.w-xl{width:300px}
+.hint{font-size:10px;color:var(--ink3)}
+.tbl{width:100%;border-collapse:collapse;font-size:11px;margin-top:6px}
+.tbl th{background:#f4f2ed;padding:6px 4px;text-align:center;font-weight:700;font-size:10px;border:1px solid var(--brd);color:var(--ink2)}
+.tbl td{padding:3px 3px;border:1px solid var(--brd);text-align:center;vertical-align:middle}
+.tbl input{width:100%;border:none;background:transparent;text-align:center;font-family:inherit;font-size:11px;color:var(--ink);outline:none;padding:2px}
+.tbl input:focus{background:var(--blu2)}
+.tbl input.lft{text-align:left}
+.tbl .num{text-align:right;font-weight:600}
+.tbl .del-btn{background:none;border:none;cursor:pointer;color:var(--ink3);font-size:13px}.tbl .del-btn:hover{color:var(--red)}
+.tbl tfoot td{background:#f9f8f5;font-weight:700}
+.add-btn{width:100%;padding:9px;border:2px dashed var(--brd2);border-radius:var(--r);background:transparent;font-family:inherit;font-size:12px;color:var(--ink2);cursor:pointer;margin-top:6px;transition:.15s}
+.add-btn:hover{border-color:var(--blu);color:var(--blu);background:var(--blu2)}
+.summary{background:var(--ink);color:#fff;border-radius:var(--r);padding:12px 18px;margin-top:14px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px}
+.summary .amt{font-family:'Noto Serif Thai',serif;font-size:22px;font-weight:700}
+.summary .txt{font-size:11px;opacity:.6}
+.sig-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px;margin-top:28px}
+@media(max-width:600px){.sig-grid{grid-template-columns:1fr}}
+.sig-box{text-align:center;padding-top:10px}
+.sig-box canvas{border:1px dashed var(--brd2);border-radius:var(--r);cursor:crosshair;display:block;margin:0 auto 4px;background:#fefefe}
+.sig-box .sig-acts{display:flex;gap:4px;justify-content:center;margin-top:3px}
+.sig-box .sig-acts button{font-size:10px;padding:2px 8px;border:1px solid var(--brd);border-radius:4px;background:var(--paper);cursor:pointer;font-family:inherit}
+.sig-name-input{border:none;border-bottom:1.5px solid var(--brd2);text-align:center;font-family:inherit;font-size:12px;color:var(--ink);width:180px;outline:none;margin-top:4px}
+.sig-name-input:focus{border-color:var(--blu)}
+.note{font-size:11px;color:var(--ink3);margin-top:16px;padding:8px;background:#faf9f5;border-left:3px solid var(--amb);border-radius:0 var(--r) var(--r) 0}
+/* Autocomplete popup */
+.ac-wrap{position:relative}
+.ac-popup{position:absolute;top:100%;left:0;right:0;background:var(--paper);border:1px solid var(--brd2);border-radius:var(--r);z-index:50;max-height:200px;overflow-y:auto;box-shadow:0 4px 16px rgba(0,0,0,.15);display:none}
+.ac-popup.open{display:block}
+.ac-item{padding:6px 10px;cursor:pointer;font-size:11px;border-bottom:.5px solid var(--brd)}
+.ac-item:hover{background:var(--grn2)}
+.desc-btn{background:var(--blu2);border:1px solid var(--blu);color:var(--blu);border-radius:3px;cursor:pointer;font-size:9px;padding:1px 4px;font-family:inherit}
+/* Login */
+.login-bg{position:fixed;inset:0;background:rgba(15,27,45,.85);z-index:500;display:flex;align-items:center;justify-content:center}
+.login-box{background:var(--paper);border-radius:12px;padding:32px;width:380px;max-width:90vw;text-align:center;box-shadow:0 8px 32px rgba(0,0,0,.3)}
+.login-box h2{font-family:'Noto Serif Thai',serif;font-size:18px;margin-bottom:6px}
+.login-box p{font-size:12px;color:var(--ink2);margin-bottom:20px}
+.login-btn{width:100%;padding:12px;border-radius:var(--r);font-size:14px;font-weight:700;cursor:pointer;border:none;font-family:inherit;margin-bottom:10px;display:flex;align-items:center;justify-content:center;gap:8px;transition:.15s}
+.login-btn.gm{background:#fff;border:2px solid #e0e0e0;color:var(--ink)}.login-btn.gm:hover{border-color:#4285f4}
+.login-btn.ol{background:#0072c6;color:#fff}.login-btn.ol:hover{background:#005a9e}
+.login-btn.skip{background:transparent;color:var(--ink3);font-size:12px;font-weight:400;padding:8px}
+.user-bar{background:var(--grn2);border:1px solid #b8dcc8;border-radius:var(--r);padding:8px 14px;margin-bottom:14px;display:flex;align-items:center;gap:8px;font-size:12px}
+.user-bar .avatar{width:28px;height:28px;border-radius:50%;background:var(--grn);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:13px}
+/* Panel */
+.panel-bg{display:none;position:fixed;inset:0;background:rgba(0,0,0,.4);z-index:200}.panel-bg.open{display:flex;justify-content:flex-end}
+.panel{width:400px;max-width:92vw;height:100vh;background:var(--paper);box-shadow:-4px 0 20px rgba(0,0,0,.15);display:flex;flex-direction:column}
+.panel-hd{padding:14px 18px;border-bottom:1px solid var(--brd);display:flex;align-items:center;justify-content:space-between}
+.panel-hd h3{font-size:14px;font-weight:700}
+.panel-close{background:none;border:none;font-size:20px;cursor:pointer;color:var(--ink2)}
+.panel-tabs{display:flex;border-bottom:1px solid var(--brd)}
+.panel-tabs button{flex:1;padding:8px;font-size:11px;font-family:inherit;border:none;background:transparent;cursor:pointer;font-weight:600;color:var(--ink3);border-bottom:2px solid transparent}
+.panel-tabs button.active{color:var(--blu);border-bottom-color:var(--blu)}
+.panel-body{flex:1;overflow-y:auto;padding:10px 14px}
+.di{padding:10px;border:1px solid var(--brd);border-radius:var(--r);margin-bottom:7px;cursor:pointer;transition:.15s}.di:hover{border-color:var(--blu);background:var(--blu2)}
+.di .di-r{font-weight:700;font-size:12px}.di .di-s{font-size:11px;color:var(--ink2);margin-top:2px}.di .di-d{font-size:10px;color:var(--ink3);margin-top:3px}
+.di .di-a{display:flex;gap:5px;margin-top:5px}
+.di .di-b{padding:2px 7px;border-radius:4px;font-size:10px;cursor:pointer;border:1px solid var(--brd);background:var(--paper);font-family:inherit}
+.di .di-b:hover{background:var(--blu2)}.di .di-b.del{color:var(--red);border-color:#f0b0aa}.di .di-b.del:hover{background:#fdf1f0}
+.st-b{display:inline-block;padding:1px 7px;border-radius:99px;font-size:9px;font-weight:700}
+.st-draft{background:var(--amb2);color:var(--amb)}.st-done{background:var(--grn2);color:var(--grn)}
+.toast-c{position:fixed;bottom:14px;right:14px;z-index:300;display:flex;flex-direction:column;gap:5px}
+.toast{background:var(--ink);color:#fff;padding:7px 13px;border-radius:var(--r);font-size:12px;animation:slin .2s}
+.toast.ok{background:var(--grn)}.toast.err{background:var(--red)}
+@keyframes slin{from{transform:translateX(40px);opacity:0}to{transform:translateX(0);opacity:1}}
+.auto-si{font-size:10px;color:rgba(255,255,255,.5);margin-left:4px}
+@media print{.topbar,.add-btn,.del-btn,.no-print,.user-bar,.sig-acts,.desc-btn,.ac-popup{display:none!important}body{background:#fff}.paper-wrap{margin:0;padding:0;max-width:100%}.paper{border:none;box-shadow:none;padding:18px 28px}.seal{opacity:.22!important}canvas{border:none!important}}
+</style>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+</head>
+<body>
+<div id="login-screen" style="display:none"></div>
+
+<div class="topbar no-print" id="topbar">
+<div class="logo">📄 ใบสำคัญรับเงิน</div><span class="auto-si" id="save-ind"></span><div class="sep"></div>
+<button class="tb" onclick="openPanel()">📋 รายการ<span class="badge" id="rec-count">0</span></button>
+<button class="tb amber" onclick="saveDraft()">💾 ร่าง</button>
+<button class="tb primary" onclick="saveComplete()">✅ เสร็จ</button>
+<button class="tb" onclick="newForm()">📝 ใบใหม่</button>
+<button class="tb gmail" onclick="sendEmail('gmail')">📨 Gmail</button>
+<button class="tb outlook" onclick="sendEmail('outlook')" title="เปิด Outlook @minor.com">📨 Outlook</button>
+<button class="tb" onclick="uploadPDFAndEmail()" title="อัปโหลด PDF → ส่ง link ใน Outlook" style="background:#1d6f42;border-color:#1d6f42">🔗 PDF Link+Mail</button>
+<button class="tb" onclick="window.print()">🖨️</button>
+<button class="tb" onclick="exportDoc('pdf')" style="background:#c0392b;border-color:#c0392b">📄 PDF</button>
+<button class="tb" onclick="exportDoc('png')" style="background:#1a5fa8;border-color:#1a5fa8">🖼 PNG</button>
+<button class="tb" onclick="exportDoc('jpg')" style="background:#9a6200;border-color:#9a6200">📷 JPG</button>
+</div>
+
+<div class="paper-wrap" id="main-app">
+<div class="user-bar no-print" id="user-bar">
+<div class="avatar" id="user-avatar">G</div>
+<div><strong id="user-name">Guest</strong><div style="font-size:10px;color:var(--ink3)" id="user-email">—</div></div>
+<div class="sep"></div>
+<button class="tb" style="color:var(--grn);border-color:var(--grn);font-size:10px;background:#fff" onclick="logout()">ออก</button>
+</div>
+
+<div class="paper" id="receipt-paper">
+<div class="doc-hd">
+<h1>ใบสำคัญรับเงิน</h1>
+<div class="seal">ใบสำคัญ<br>รับเงิน</div>
+<div class="doc-meta">
+<span>ที่ <input type="text" id="f-docno" style="width:100px" oninput="autoSave()"></span>
+<span>วันที่ <input type="number" id="f-day" style="width:35px" oninput="autoSave()"> เดือน
+<select id="f-month" style="border:none;border-bottom:1.5px solid var(--brd2);font-family:inherit;font-size:13px;outline:none;background:transparent" onchange="autoSave()">
+<option>มกราคม</option><option>กุมภาพันธ์</option><option>มีนาคม</option><option>เมษายน</option><option selected>พฤษภาคม</option><option>มิถุนายน</option><option>กรกฎาคม</option><option>สิงหาคม</option><option>กันยายน</option><option>ตุลาคม</option><option>พฤศจิกายน</option><option>ธันวาคม</option>
+</select> พ.ศ. <input type="number" id="f-year" style="width:50px" oninput="autoSave()"></span>
+</div></div>
+
+<div class="frow"><label>ข้าพเจ้า</label><input type="text" id="f-name" onchange="rememberField('f-name')" class="w-lg" oninput="autoSave()"><span class="hint">(ผู้ขายสินค้า/ให้บริการ)</span></div>
+<div class="frow"><label>เลขประจำตัวผู้เสียภาษี</label><input type="text" id="f-taxid" onchange="rememberField('f-taxid')" class="w-md" oninput="autoSave()"><label>อยู่บ้านเลขที่</label><input type="text" id="f-addr" onchange="rememberField('f-addr')" class="w-sm" oninput="autoSave()"><label>หมู่</label><input type="text" id="f-moo" onchange="rememberField('f-moo')" style="width:40px" oninput="autoSave()"></div>
+<div class="frow"><label>ถนน</label><input type="text" id="f-road" onchange="rememberField('f-road')" class="w-md" oninput="autoSave()"><label>แขวง/ตำบล</label><input type="text" id="f-tambon" onchange="rememberField('f-tambon')" class="w-md" oninput="autoSave()"><label>เขต/อำเภอ</label><input type="text" id="f-amphoe" onchange="rememberField('f-amphoe')" class="w-md" oninput="autoSave()"></div>
+<div class="frow"><label>จังหวัด</label><input type="text" id="f-province" onchange="rememberField('f-province')" class="w-md" oninput="autoSave()"></div>
+<div class="frow" style="margin-top:12px"><label>ได้รับเงินจาก</label><input type="text" id="f-payer" onchange="rememberField('f-payer')" class="w-xl" oninput="autoSave()"><span class="hint">(ผู้ซื้อ/ผู้รับบริการ) ดังรายการต่อไปนี้</span></div>
+<div class="frow"><label>วันที่ทำงาน ตั้งแต่</label><input type="date" id="f-date-from" class="w-md" oninput="autoSave()"><label style="margin-left:8px">ถึง</label><input type="date" id="f-date-to" class="w-md" oninput="autoSave()"></div>
+
+<div style="overflow-x:auto;margin-top:14px">
+<table class="tbl">
+<thead><tr>
+<th style="width:28px">ลำดับ</th>
+<th style="width:88px">วันที่</th>
+<th>รายการ (ชนิด/ชื่อ)</th>
+<th style="width:52px">เข้างาน</th>
+<th style="width:52px">ออกงาน</th>
+<th style="width:40px">พัก(น.)</th>
+<th style="width:38px">ชม.</th>
+<th style="width:55px">อัตรา</th>
+<th style="width:68px">จำนวนเงิน</th>
+<th style="width:26px" class="no-print"></th>
+</tr></thead>
+<tbody id="tbl-body"></tbody>
+<tfoot><tr>
+<td colspan="3" style="text-align:right"><strong>รวม</strong></td>
+<td colspan="3"></td>
+<td class="num" id="sum-hrs">0</td>
+<td></td>
+<td class="num" style="color:var(--red);font-size:13px" id="sum-amt">0.00</td>
+<td class="no-print"></td>
+</tr></tfoot>
+</table>
+</div>
+<button class="add-btn no-print" onclick="addRow()">+ เพิ่มรายการ</button>
+
+<div class="summary">
+<div><div class="txt">จำนวนเงินตัวอักษร</div><div id="sum-text" style="font-size:13px;margin-top:2px">ศูนย์บาทถ้วน</div></div>
+<div style="text-align:right"><div class="txt">ยอดรวม</div><div class="amt">฿ <span id="sum-total">0.00</span></div></div>
+</div>
+
+<div class="sig-grid">
+<div class="sig-box">
+<canvas id="sig-reviewer" width="200" height="60"></canvas>
+<div class="sig-acts no-print"><button onclick="clearSig('sig-reviewer')">ล้าง</button></div>
+<div style="font-size:12px;margin-top:4px">ลงชื่อ ________________</div>
+<div style="font-size:11px;color:var(--ink2)">ผู้ตรวจสอบ</div>
+<div style="display:flex;align-items:center;gap:4px;justify-content:center;margin-top:4px">
+<input type="text" class="sig-name-input" id="f-sig-reviewer" placeholder="ชื่อผู้ตรวจสอบ" oninput="autoSave();saveSigner()" style="margin-top:0">
+<button onclick="toggleLock('f-sig-reviewer',this)" id="lock-reviewer" title="ล็อคชื่อ" style="background:none;border:1px solid var(--brd);border-radius:4px;cursor:pointer;font-size:11px;padding:2px 5px">🔓</button>
+</div>
+</div>
+<div class="sig-box">
+<canvas id="sig-approver" width="200" height="60"></canvas>
+<div class="sig-acts no-print"><button onclick="clearSig('sig-approver')">ล้าง</button></div>
+<div style="font-size:12px;margin-top:4px">ลงชื่อ ________________</div>
+<div style="font-size:11px;color:var(--ink2)">ผู้อนุมัติ</div>
+<div style="display:flex;align-items:center;gap:4px;justify-content:center;margin-top:4px">
+<input type="text" class="sig-name-input" id="f-sig-approver" placeholder="ชื่อผู้อนุมัติ" oninput="autoSave();saveSigner()" style="margin-top:0">
+<button onclick="toggleLock('f-sig-approver',this)" id="lock-approver" title="ล็อคชื่อ" style="background:none;border:1px solid var(--brd);border-radius:4px;cursor:pointer;font-size:11px;padding:2px 5px">🔓</button>
+</div>
+</div>
+<div class="sig-box">
+<canvas id="sig-receiver" width="200" height="60"></canvas>
+<div class="sig-acts no-print"><button onclick="clearSig('sig-receiver')">ล้าง</button></div>
+<div style="font-size:12px;margin-top:4px">ลงชื่อ ________________</div>
+<div style="font-size:11px;color:var(--ink2)">ผู้รับเงิน</div>
+<div style="display:flex;align-items:center;gap:4px;justify-content:center;margin-top:4px">
+<input type="text" class="sig-name-input" id="f-sig-receiver" placeholder="ชื่อผู้รับเงิน" oninput="autoSave();saveSigner()" style="margin-top:0">
+<button onclick="toggleLock('f-sig-receiver',this)" id="lock-receiver" title="ล็อคชื่อ" style="background:none;border:1px solid var(--brd);border-radius:4px;cursor:pointer;font-size:11px;padding:2px 5px">🔓</button>
+</div>
+</div>
+</div>
+<div class="note">หมายเหตุ: แนบสำเนาบัตรประชาชนผู้รับเงิน (ซึ่งเป็นผู้ประกอบการอาชีพขายสินค้า/ให้บริการอย่างแท้จริง)</div>
+</div></div>
+
+<div class="panel-bg" id="panel-bg">
+<div class="panel">
+<div class="panel-hd"><h3>📋 รายการทั้งหมด</h3><button class="panel-close" onclick="closePanel()">×</button></div>
+<div class="panel-tabs"><button class="active" onclick="setFilter('all',this)">ทั้งหมด</button><button onclick="setFilter('draft',this)">📝 ร่าง</button><button onclick="setFilter('done',this)">✅ เสร็จ</button></div>
+<div class="panel-body" id="panel-list"></div>
+</div></div>
+<div class="toast-c" id="toasts"></div>
+
+<script>
+var db,rows=[],currentId=null,curFilter='all',curUser=null;
+var sigDrawing={};
+var DESC_HISTORY=["Prepare pizza sauce", "Test Indonesia Yeast", "Test UAE flour", "Test Indonesia Flour", "Present Indonesia Yeast, Paper Pad, Pizza box", "Re-Confirm Test UAE flour", "Test Indonesia Yeast New Formula TPC#53,TPC#54", "Test IFV Lot Approved", "Test LS Blend Lot Approved", "TEST LS SPECIALTY BLEND LOT APPROVED", "TEST INTERFLOUR LOT APPROVED", "RE-CONFIRM UFM + AC YEAST", "TEST RB NEW YEAST LOT APPROVED", "TEST NISSHIN FLOUR", "TEST UFM T6 FLOUR LOT APPROVED", "TEST AC BLEND SHELF LIFE EXTENSION", "CUTTING CLASS 1 TEST FLOUR", "Import cutting: Crispy thin"];
+var userDescs=[];
+
+function openDB(){return new Promise(function(res,rej){var r=indexedDB.open('ReceiptV3',1);r.onupgradeneeded=function(e){var d=e.target.result;if(!d.objectStoreNames.contains('records'))d.createObjectStore('records',{keyPath:'id'});if(!d.objectStoreNames.contains('meta'))d.createObjectStore('meta',{keyPath:'key'});};r.onsuccess=function(e){db=e.target.result;res();};r.onerror=rej;})}
+function dbPut(s,v){return new Promise(function(r){db.transaction(s,'readwrite').objectStore(s).put(v).onsuccess=function(){r();};})}
+function dbGet(s,k){return new Promise(function(r){var q=db.transaction(s,'readonly').objectStore(s).get(k);q.onsuccess=function(e){r(e.target.result);};})}
+function dbAll(s){return new Promise(function(r){var q=db.transaction(s,'readonly').objectStore(s).getAll();q.onsuccess=function(e){r(e.target.result);};})}
+function dbDel(s,k){return new Promise(function(r){var tx=db.transaction(s,'readwrite');tx.objectStore(s).delete(k);tx.oncomplete=function(){r();};})}
+
+function loginWith(p){
+  var nameInp=document.getElementById('login-name');
+  var emailInp=document.getElementById('login-email');
+  var name=(nameInp&&nameInp.value.trim())||'WIYAKARN';
+  var email=(emailInp&&emailInp.value.trim())||'wiyakarn_ka@minor.com';
+  curUser={email:email,name:name,provider:p};
+  try{if(db)dbPut('meta',{key:'user',data:curUser});}catch(e){}
+  try{localStorage.setItem('receipt_user',JSON.stringify(curUser));}catch(e){}
+  showApp();
+}
+function showApp(){
+  document.getElementById('login-screen').style.display='none';
+  document.getElementById('topbar').style.display='flex';
+  document.getElementById('main-app').style.display='block';
+  if(curUser){document.getElementById('user-name').textContent=curUser.name;document.getElementById('user-email').textContent=curUser.email;document.getElementById('user-avatar').textContent=curUser.name.charAt(0).toUpperCase();}
+}
+function logout(){curUser=null;dbDel('meta','user');document.getElementById('login-screen').style.display='flex';document.getElementById('topbar').style.display='none';document.getElementById('main-app').style.display='none';}
+
+
+// ── LOCK SIGNERS ──────────────────────────────
+var lockedSigners = {};
+function toggleLock(id, btn) {
+  lockedSigners[id] = !lockedSigners[id];
+  var inp = document.getElementById(id);
+  if (lockedSigners[id]) {
+    btn.textContent = '🔒';
+    btn.style.background = '#e8f0fa';
+    btn.style.borderColor = 'var(--blu)';
+    inp.style.borderColor = 'var(--blu)';
+    inp.readOnly = true;
+    saveSigner();
+    toast('🔒 ล็อคชื่อแล้ว', 'ok');
+  } else {
+    btn.textContent = '🔓';
+    btn.style.background = '';
+    btn.style.borderColor = '';
+    inp.style.borderColor = '';
+    inp.readOnly = false;
+  }
+}
+function saveSigner() {
+  dbPut('meta', {key:'signerNames', data:{
+    reviewer: g('f-sig-reviewer'),
+    approver: g('f-sig-approver'),
+    receiver: g('f-sig-receiver')
+  }});
+}
+
+// ── CALC POPUP ────────────────────────────────
+function showCalcPopup(i) {
+  var r = rows[i];
+  if (!r.cin || !r.cout) { toast('กรอกเวลาเข้า-ออกก่อน', 'err'); return; }
+  var a = r.cin.split(':').map(Number), b = r.cout.split(':').map(Number);
+  var totalMins = (b[0]*60+b[1]) - (a[0]*60+a[1]);
+  var brk = parseInt(r.brk)||0;
+  var workMins = totalMins - brk;
+  if (workMins < 0) workMins = 0;
+  var hrs = (workMins/60).toFixed(2);
+  var amt = (parseFloat(hrs) * (parseFloat(r.rate)||0)).toFixed(2);
+  var msg = 'เวลาเข้า: ' + r.cin + '\n' +
+            'เวลาออก: ' + r.cout + '\n' +
+            'รวม: ' + totalMins + ' นาที\n' +
+            'หักพัก: ' + brk + ' นาที\n' +
+            'ชั่วโมงทำงาน: ' + hrs + ' ชม.\n' +
+            'อัตรา: ' + (r.rate||0) + ' บาท/ชม.\n' +
+            '──────────────\n' +
+            'รวมเงิน: ' + parseFloat(amt).toLocaleString('th-TH',{minimumFractionDigits:2}) + ' บาท';
+  alert(msg);
+}
+
+// ── REMEMBER FIELD VALUES ─────────────────────
+var fieldMemory = {};
+async function loadFieldMemory() {
+  var m = await dbGet('meta','fieldMemory');
+  if (m && m.data) fieldMemory = m.data;
+}
+function rememberField(id) {
+  var v = g(id);
+  if (!v) return;
+  fieldMemory[id] = v;
+  dbPut('meta', {key:'fieldMemory', data:fieldMemory});
+}
+function applyFieldMemory() {
+  var fields = ['f-name','f-taxid','f-addr','f-moo','f-road','f-tambon','f-amphoe','f-province','f-payer'];
+  fields.forEach(function(id) {
+    if (fieldMemory[id]) s(id, fieldMemory[id]);
+  });
+}
+
+
+
+const SUPABASE_URL='https://ucgodhpbudniwngnwpkn.supabase.co';
+const SUPABASE_KEY='sb_publishable_6rTZgXXgWzxzFV7mPIO2lQ_13Qwd5iL';
+
+async function uploadPDFAndEmail(){
+  var paper=document.getElementById('receipt-paper');
+  var noPrint=[].slice.call(document.querySelectorAll('.no-print'));
+  noPrint.forEach(function(el){el.style.visibility='hidden';});
+  var btn=document.querySelector('[onclick="uploadPDFAndEmail()"]');
+  if(btn){btn.disabled=true;btn.textContent='⏳ กำลังสร้าง...';}
+  try{
+    // 1. Render to canvas
+    var canvas=await html2canvas(paper,{scale:2,useCORS:true,backgroundColor:'#ffffff',logging:false});
+    noPrint.forEach(function(el){el.style.visibility='';});
+
+    // 2. Convert to PDF blob
+    var jspdf=window.jspdf||window.jsPDF;
+    var PDF=new jspdf.jsPDF({orientation:'portrait',unit:'mm',format:'a4'});
+    var imgW=210,imgH=(canvas.height*imgW)/canvas.width;
+    var y=0;while(y<imgH){if(y>0)PDF.addPage();PDF.addImage(canvas.toDataURL('image/png'),'PNG',0,-y,imgW,imgH);y+=297;}
+    var pdfBlob=PDF.output('blob');
+
+    // 3. Upload to Supabase Storage
+    var d=collectData();
+    var ts=Date.now();
+    var fname='receipt_'+(d.name||'doc').replace(/\s+/g,'_')+'_'+ts+'.pdf';
+    var uploadRes=await fetch(SUPABASE_URL+'/storage/v1/object/receipts/'+fname,{
+      method:'POST',
+      headers:{
+        'apikey':SUPABASE_KEY,
+        'Authorization':'Bearer '+SUPABASE_KEY,
+        'Content-Type':'application/pdf',
+        'x-upsert':'true'
+      },
+      body:pdfBlob
+    });
+    if(!uploadRes.ok){var err=await uploadRes.text();throw new Error('Upload failed: '+err);}
+
+    // 4. Get public URL
+    var publicUrl=SUPABASE_URL+'/storage/v1/object/public/receipts/'+fname;
+
+    // 5. Open Outlook with link in body
+    var total=document.getElementById('sum-total').textContent;
+    var dateRange=d.dateFrom&&d.dateTo?' รอบวันที่ '+d.dateFrom+' ถึง '+d.dateTo:'';
+    var subj='ขอเบิกค่าใช้จ่าย — '+d.name+' — ฿'+total;
+    var body='เรียน คุณย้อ\n\n'
+      +'รบกวนเบิกค่าใช้จ่าย '+d.name+dateRange+'\n'
+      +'จำนวนเงิน '+parseFloat(total.replace(/,/g,'')).toLocaleString('th-TH',{minimumFractionDigits:2})+' บาท '
+      +document.getElementById('sum-text').textContent+'\n'
+      +'รายละเอียดตามเอกสารแนบครับ\n\n'
+      +'📄 ดูเอกสาร PDF: '+publicUrl+'\n\n'
+      +'ขอบคุณมากครับ\n'
+      +'WIYAKARN KASORNMALEE ( NUPUK )\n'
+      +'Assistant Manager - QA\n'
+      +'M +66(0) 855169041  E wiyakarn_ka@minor.com\n'
+      +'Minor International PCL., 88 The Parq Building, 11Fl. Ratchadaphisek Road,\n'
+      +'Klongtoey Subdistrict, Klongtoey District, Bangkok 10110';
+
+    window.location.href='mailto:?subject='+encodeURIComponent(subj)+'&body='+encodeURIComponent(body);
+    toast('✅ อัปโหลด PDF แล้ว — เปิด Outlook','ok');
+
+  }catch(e){
+    noPrint.forEach(function(el){el.style.visibility='';});
+    toast('Error: '+e.message,'err');
+    console.error(e);
+  }
+  if(btn){btn.disabled=false;btn.textContent='🔗 PDF Link+Mail';}
+}
+async function exportDoc(type){
+  var paper=document.getElementById('receipt-paper');
+  var noPrint=[].slice.call(document.querySelectorAll('.no-print'));
+  // Hide no-print elements
+  noPrint.forEach(function(el){el.style.visibility='hidden';});
+  try{
+    var canvas=await html2canvas(paper,{
+      scale:2,
+      useCORS:true,
+      backgroundColor:'#ffffff',
+      logging:false
+    });
+    var name='ใบสำคัญรับเงิน_'+(g('f-name')||'doc')+'_'+new Date().toLocaleDateString('th-TH').replace(/\//g,'-');
+    if(type==='pdf'){
+      var jspdf=window.jspdf||window.jsPDF;
+      var PDF=jspdf?new jspdf.jsPDF({orientation:'portrait',unit:'mm',format:'a4'}):null;
+      if(!PDF){toast('โหลด jsPDF ไม่สำเร็จ','err');return;}
+      var imgW=210,imgH=(canvas.height*imgW)/canvas.width;
+      var y=0;
+      while(y<imgH){
+        if(y>0)PDF.addPage();
+        PDF.addImage(canvas.toDataURL('image/png'),'PNG',0,-y,imgW,imgH);
+        y+=297;
+      }
+      PDF.save(name+'.pdf');
+      toast('✅ บันทึก PDF แล้ว','ok');
+    } else {
+      var mime=type==='jpg'?'image/jpeg':'image/png';
+      var quality=type==='jpg'?0.92:1;
+      var a=document.createElement('a');
+      a.download=name+'.'+(type==='jpg'?'jpg':'png');
+      a.href=canvas.toDataURL(mime,quality);
+      a.click();
+      toast('✅ บันทึก '+type.toUpperCase()+' แล้ว','ok');
+    }
+  }catch(e){toast('Error: '+e.message,'err');}
+  // Restore
+  noPrint.forEach(function(el){el.style.visibility='';});
+}
+
+async function exportAndEmail(){
+  var paper=document.getElementById('receipt-paper');
+  var noPrint=[].slice.call(document.querySelectorAll('.no-print'));
+  noPrint.forEach(function(el){el.style.visibility='hidden';});
+  var btn=document.querySelector('[onclick="exportAndEmail()"]');
+  if(btn){btn.textContent='⏳ กำลังสร้าง PDF...';}
+  try{
+    var canvas=await html2canvas(paper,{scale:2,useCORS:true,backgroundColor:'#ffffff',logging:false});
+    var jspdf=window.jspdf||window.jsPDF;
+    var PDF=new jspdf.jsPDF({orientation:'portrait',unit:'mm',format:'a4'});
+    var imgW=210,imgH=(canvas.height*imgW)/canvas.width;
+    var y=0;while(y<imgH){if(y>0)PDF.addPage();PDF.addImage(canvas.toDataURL('image/png'),'PNG',0,-y,imgW,imgH);y+=297;}
+    var d2=collectData();
+    var fname='ใบสำคัญรับเงิน_'+(d2.name||'doc')+'_'+new Date().toLocaleDateString('th-TH').replace(/\//g,'-')+'.pdf';
+    PDF.save(fname);
+
+    // Open Outlook with email body after PDF saved
+    var total2=document.getElementById('sum-total').textContent;
+    var dateRange2=d2.dateFrom&&d2.dateTo?' รอบวันที่ '+d2.dateFrom+' ถึง '+d2.dateTo:'';
+    var emailBody='เรียน คุณย้อ\n\n'
+      +'รบกวนเบิกค่าใช้จ่าย '+d2.name+dateRange2+'\n'
+      +'จำนวนเงิน '+parseFloat(total2.replace(/,/g,'')).toLocaleString('th-TH',{minimumFractionDigits:2})+' บาท '
+      +document.getElementById('sum-text').textContent+'\n'
+      +'รายละเอียดตามเอกสารแนบครับ\n\n'
+      +'ขอบคุณมากครับ\n'
+      +'WIYAKARN KASORNMALEE ( NUPUK )\n'
+      +'Assistant Manager - QA\n'
+      +'M +66(0) 855169041  E wiyakarn_ka@minor.com\n'
+      +'Minor International PCL., 88 The Parq Building, 11Fl. Ratchadaphisek Road,\n'
+      +'Klongtoey Subdistrict, Klongtoey District, Bangkok 10110';
+    var subj2='ขอเบิกค่าใช้จ่าย — '+d2.name+' — ฿'+total2;
+
+    // Show instruction overlay
+    showAttachGuide(fname, subj2, emailBody);
+
+  }catch(e){toast('Error: '+e.message,'err');}
+  noPrint.forEach(function(el){el.style.visibility='';});
+  if(btn){btn.textContent='📎 PDF+Mail';}
+}
+
+function showAttachGuide(fname, subj, body){
+  var ov=document.createElement('div');
+  ov.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:999;display:flex;align-items:center;justify-content:center;padding:16px';
+  var box=document.createElement('div');
+  box.style.cssText='background:#fff;border-radius:12px;padding:24px;max-width:420px;width:100%;box-shadow:0 8px 32px rgba(0,0,0,.3)';
+  var openBtn=document.createElement('button');
+  openBtn.textContent='📨 เปิด Outlook';
+  openBtn.style.cssText='flex:1;padding:10px;background:#0072c6;color:#fff;border:none;border-radius:7px;font-size:13px;font-weight:700;cursor:pointer';
+  openBtn.onclick=function(){window.location.href='mailto:?subject='+encodeURIComponent(subj)+'&body='+encodeURIComponent(body);};
+  var closeBtn=document.createElement('button');
+  closeBtn.textContent='ปิด';
+  closeBtn.style.cssText='padding:10px 16px;background:#f3f4f6;border:none;border-radius:7px;font-size:13px;cursor:pointer';
+  closeBtn.onclick=function(){ov.remove();};
+  var btnRow=document.createElement('div');
+  btnRow.style.cssText='display:flex;gap:8px;margin-top:14px';
+  btnRow.appendChild(openBtn);btnRow.appendChild(closeBtn);
+  var title=document.createElement('div');
+  title.style.cssText='font-size:18px;font-weight:700;margin-bottom:8px';
+  title.textContent='📎 แนบไฟล์ใน Outlook';
+  var steps=document.createElement('div');
+  steps.style.cssText='background:#f0f7ff;border-radius:8px;padding:12px;font-size:13px;line-height:2';
+  steps.innerHTML='<b>1.</b> Outlook เปิดขึ้นมา → กด <b>Attach File</b><br><b>2.</b> เลือกไฟล์ <b style="color:#c0392b">'+fname+'</b><br><b>3.</b> ใส่ To: แล้วกด <b>Send</b>';
+  box.appendChild(title);box.appendChild(steps);box.appendChild(btnRow);
+  ov.appendChild(box);
+  document.body.appendChild(ov);
+  ov.addEventListener('click',function(e){if(e.target===ov)ov.remove();});
+}
+function addRow(){rows.push({date:'',desc:'',cin:'',cout:'',brk:'60',hrs:'',rate:'75',amt:''});renderTable();}
+function removeRow(i){rows.splice(i,1);renderTable();}
+
+function renderTable(){
+  var tb=document.getElementById('tbl-body');
+  tb.innerHTML=rows.map(function(r,i){
+    return '<tr>'+
+      '<td style="color:var(--ink3);font-size:10px">'+(i+1)+'</td>'+
+      '<td><input type="date" value="'+r.date+'" data-i="'+i+'" data-f="date" class="t-inp"></td>'+
+      '<td style="position:relative"><div style="display:flex;gap:2px;align-items:center"><input type="text" value="'+(r.desc||'').replace(/"/g,'&quot;')+'" data-i="'+i+'" data-f="desc" class="t-inp lft desc-input" placeholder="รายละเอียดงาน..." autocomplete="off"><button class="desc-btn no-print" data-i="'+i+'" title="เลือกจากรายการ">▼</button></div><div class="ac-popup" id="ac-'+i+'"></div></td>'+
+      '<td style="white-space:nowrap"><input type="time" value="'+r.cin+'" data-i="'+i+'" data-f="cin" class="t-inp"> <button onclick="showCalcPopup('+i+')" title="คำนวณ" class="desc-btn no-print">🧮</button></td>'+
+      '<td><input type="time" value="'+r.cout+'" data-i="'+i+'" data-f="cout" class="t-inp"></td>'+
+      '<td><input type="number" value="'+r.brk+'" data-i="'+i+'" data-f="brk" class="t-inp" style="width:36px"></td>'+
+      '<td class="num">'+(r.hrs||'')+'</td>'+
+      '<td><input type="number" value="'+r.rate+'" data-i="'+i+'" data-f="rate" class="t-inp" style="text-align:right"></td>'+
+      '<td class="num" style="color:var(--red)">'+(r.amt?parseFloat(r.amt).toFixed(2):'')+'</td>'+
+      '<td class="no-print"><button class="del-btn" onclick="removeRow('+i+')">×</button></td></tr>';
+  }).join('');
+
+  tb.querySelectorAll('.t-inp').forEach(function(inp){
+    inp.addEventListener('change',function(){
+      var i=parseInt(inp.dataset.i),f=inp.dataset.f;
+      if(f==='date'&&inp.value){var dup=rows.findIndex(function(r,j){return j!==i&&r.date===inp.value;});if(dup>=0){toast('⚠️ วันที่ซ้ำแถว '+(dup+1),'err');inp.value=rows[i].date;return;}}
+      rows[i][f]=inp.value;
+      calcRow(i);renderTable();autoSave();
+      if(f==='desc'&&inp.value)saveDesc(inp.value);
+    });
+  });
+
+  // Description autocomplete
+  tb.querySelectorAll('.desc-input').forEach(function(inp){
+    inp.addEventListener('input',function(){showAC(parseInt(inp.dataset.i),inp.value);});
+    inp.addEventListener('focus',function(){if(inp.value.length>=1)showAC(parseInt(inp.dataset.i),inp.value);});
+    inp.addEventListener('keydown',function(e){
+      if(e.key==='Enter'){
+        var i=parseInt(inp.dataset.i);
+        var popup=document.getElementById('ac-'+i);
+        if(popup&&popup.classList.contains('open')){
+          // Select first item
+          var first=popup.querySelector('.ac-item');
+          if(first){
+            e.preventDefault();
+            rows[i].desc=first.dataset.v;
+            popup.classList.remove('open');
+            renderTable();autoSave();
+          }
+        }
+      }
+      if(e.key==='ArrowDown'){
+        e.preventDefault();
+        var popup=document.getElementById('ac-'+parseInt(inp.dataset.i));
+        if(popup){var first=popup.querySelector('.ac-item');if(first)first.focus();}
+      }
+    });
+  });
+  // Arrow key nav in popup
+  tb.querySelectorAll('.ac-popup').forEach(function(popup){
+    popup.addEventListener('keydown',function(e){
+      var items=[].slice.call(popup.querySelectorAll('.ac-item'));
+      var idx=items.indexOf(document.activeElement);
+      if(e.key==='ArrowDown'){e.preventDefault();if(idx<items.length-1)items[idx+1].focus();}
+      if(e.key==='ArrowUp'){e.preventDefault();if(idx>0)items[idx-1].focus();else{var i=parseInt(popup.id.replace('ac-',''));var descInp=tb.querySelector('.desc-input[data-i="'+i+'"]');if(descInp)descInp.focus();}}
+      if(e.key==='Enter'&&idx>=0){e.preventDefault();items[idx].click();}
+      if(e.key==='Escape'){popup.classList.remove('open');}
+    });
+    popup.querySelectorAll('.ac-item').forEach(function(item){item.setAttribute('tabindex','0');});
+  });
+  tb.querySelectorAll('.desc-btn').forEach(function(btn){
+    btn.addEventListener('click',function(e){e.stopPropagation();showAC(parseInt(btn.dataset.i),'');});
+  });
+  calcTotals();
+}
+
+function calcRow(i){
+  var r=rows[i];
+  if(r.cin&&r.cout){
+    var a=r.cin.split(':').map(Number),b=r.cout.split(':').map(Number);
+    var mins=(b[0]*60+b[1])-(a[0]*60+a[1])-(parseInt(r.brk)||0);
+    if(mins<0)mins=0;r.hrs=(mins/60).toFixed(1);
+  }
+  if(r.hrs&&r.rate)r.amt=(parseFloat(r.hrs)*parseFloat(r.rate)).toFixed(2);
+  else if(r.hrs)r.amt='';
+}
+
+function calcTotals(){
+  var hrs=0,amt=0;
+  rows.forEach(function(r){hrs+=parseFloat(r.hrs)||0;amt+=parseFloat(r.amt)||0;});
+  document.getElementById('sum-hrs').textContent=hrs.toFixed(1);
+  document.getElementById('sum-amt').textContent=amt.toFixed(2);
+  document.getElementById('sum-total').textContent=amt.toLocaleString('th-TH',{minimumFractionDigits:2});
+  document.getElementById('sum-text').textContent=bahtText(amt);
+}
+
+// Autocomplete
+function getAllDescs(){var all=DESC_HISTORY.concat(userDescs);return [...new Set(all)];}
+function showAC(i,q){
+  document.querySelectorAll('.ac-popup').forEach(function(p){p.classList.remove('open');});
+  var el=document.getElementById('ac-'+i);if(!el)return;
+  var all=getAllDescs();
+  var filtered=q?all.filter(function(d){return d.toLowerCase().includes(q.toLowerCase());}):all;
+  if(!filtered.length){el.classList.remove('open');return;}
+  el.innerHTML=filtered.slice(0,15).map(function(d){return '<div class="ac-item" data-v="'+d.replace(/"/g,'&quot;')+'">'+d+'</div>';}).join('');
+  el.classList.add('open');
+  el.querySelectorAll('.ac-item').forEach(function(item){
+    item.addEventListener('mousedown',function(e){
+      e.preventDefault();e.stopPropagation();rows[i].desc=item.dataset.v;el.classList.remove('open');renderTable();autoSave();
+    });
+  });
+}
+async function saveDesc(d){if(!d||d.length<3)return;if(!userDescs.includes(d)){userDescs.push(d);if(userDescs.length>50)userDescs.shift();await dbPut('meta',{key:'userDescs',data:userDescs});}}
+document.addEventListener('click',function(){document.querySelectorAll('.ac-popup').forEach(function(p){p.classList.remove('open');});});
+
+function bahtText(n){
+  if(n===0)return'ศูนย์บาทถ้วน';var t=['','หนึ่ง','สอง','สาม','สี่','ห้า','หก','เจ็ด','แปด','เก้า'];var u=['','สิบ','ร้อย','พัน','หมื่น','แสน','ล้าน'];
+  var s2=Math.floor(n).toString(),r='';for(var i=0;i<s2.length;i++){var d=parseInt(s2[i]),pos=s2.length-1-i;if(d===0)continue;if(pos===1&&d===2)r+='ยี่';else if(pos===1&&d===1)r+='';else if(pos===0&&d===1&&s2.length>1)r+='เอ็ด';else r+=t[d];r+=u[pos%7];}
+  r+='บาท';var sat=Math.round((n-Math.floor(n))*100);if(sat===0)r+='ถ้วน';else{var ss=sat.toString().padStart(2,'0');if(parseInt(ss[0])>0){if(parseInt(ss[0])===2)r+='ยี่สิบ';else if(parseInt(ss[0])===1)r+='สิบ';else r+=t[parseInt(ss[0])]+'สิบ';}if(parseInt(ss[1])>0){if(parseInt(ss[1])===1&&sat>10)r+='เอ็ด';else r+=t[parseInt(ss[1])];}r+='สตางค์';}return r;
+}
+
+// Signatures
+function initSigs(){
+  ['sig-reviewer','sig-approver','sig-receiver'].forEach(function(id){
+    var c=document.getElementById(id);var ctx=c.getContext('2d');var drawing=false;sigDrawing[id]=false;
+    c.addEventListener('mousedown',function(e){drawing=true;ctx.beginPath();ctx.moveTo(e.offsetX,e.offsetY);});
+    c.addEventListener('mousemove',function(e){if(!drawing)return;ctx.lineWidth=1.5;ctx.strokeStyle='#0F1B2D';ctx.lineTo(e.offsetX,e.offsetY);ctx.stroke();sigDrawing[id]=true;});
+    c.addEventListener('mouseup',function(){drawing=false;});c.addEventListener('mouseleave',function(){drawing=false;});
+    c.addEventListener('touchstart',function(e){e.preventDefault();drawing=true;var t=e.touches[0],r=c.getBoundingClientRect();ctx.beginPath();ctx.moveTo(t.clientX-r.left,t.clientY-r.top);});
+    c.addEventListener('touchmove',function(e){e.preventDefault();if(!drawing)return;var t=e.touches[0],r=c.getBoundingClientRect();ctx.lineWidth=1.5;ctx.strokeStyle='#0F1B2D';ctx.lineTo(t.clientX-r.left,t.clientY-r.top);ctx.stroke();sigDrawing[id]=true;});
+    c.addEventListener('touchend',function(){drawing=false;});
+  });
+}
+function clearSig(id){document.getElementById(id).getContext('2d').clearRect(0,0,200,60);sigDrawing[id]=false;}
+function getSigData(id){return sigDrawing[id]?document.getElementById(id).toDataURL():'';}
+function setSigData(id,data){if(!data)return;var img=new Image();img.onload=function(){document.getElementById(id).getContext('2d').drawImage(img,0,0);sigDrawing[id]=true;};img.src=data;}
+
+function g(id){var e=document.getElementById(id);return e?e.value:'';}
+function s(id,v){var e=document.getElementById(id);if(e)e.value=v||'';}
+
+function collectData(){
+  // Save signer names
+  dbPut('meta',{key:'signerNames',data:{reviewer:g('f-sig-reviewer'),approver:g('f-sig-approver'),receiver:g('f-sig-receiver')}});
+  return{docno:g('f-docno'),day:g('f-day'),month:g('f-month'),year:g('f-year'),dateFrom:g('f-date-from'),dateTo:g('f-date-to'),
+    name:g('f-name'),taxid:g('f-taxid'),addr:g('f-addr'),moo:g('f-moo'),road:g('f-road'),
+    tambon:g('f-tambon'),amphoe:g('f-amphoe'),province:g('f-province'),payer:g('f-payer'),
+    sigReviewer:g('f-sig-reviewer'),sigApprover:g('f-sig-approver'),sigReceiver:g('f-sig-receiver'),
+    sigRevImg:getSigData('sig-reviewer'),sigAppImg:getSigData('sig-approver'),sigRecImg:getSigData('sig-receiver'),
+    rows:rows.map(function(r){return Object.assign({},r);})};
+}
+function restoreData(d){
+  s('f-docno',d.docno);s('f-day',d.day);s('f-year',d.year);
+  if(d.month){var sel=document.getElementById('f-month');for(var i=0;i<sel.options.length;i++)if(sel.options[i].value===d.month)sel.selectedIndex=i;}
+  if(d.dateFrom)s('f-date-from',d.dateFrom);if(d.dateTo)s('f-date-to',d.dateTo);
+  s('f-name',d.name);s('f-taxid',d.taxid);s('f-addr',d.addr);s('f-moo',d.moo);s('f-road',d.road);
+  s('f-tambon',d.tambon);s('f-amphoe',d.amphoe);s('f-province',d.province);s('f-payer',d.payer);
+  s('f-sig-reviewer',d.sigReviewer);s('f-sig-approver',d.sigApprover);s('f-sig-receiver',d.sigReceiver);
+  if(d.rows&&d.rows.length)rows=d.rows;else{rows=[];addRow();addRow();addRow();}
+  renderTable();
+  clearSig('sig-reviewer');clearSig('sig-approver');clearSig('sig-receiver');
+  if(d.sigRevImg)setSigData('sig-reviewer',d.sigRevImg);
+  if(d.sigAppImg)setSigData('sig-approver',d.sigAppImg);
+  if(d.sigRecImg)setSigData('sig-receiver',d.sigRecImg);
+}
+
+var saveTimer;
+function autoSave(){clearTimeout(saveTimer);saveTimer=setTimeout(async function(){if(!currentId)return;var d=collectData();var rec=await dbGet('records',currentId);if(rec){rec.data=d;rec.savedAt=Date.now();rec.label=d.name||'-';await dbPut('records',rec);}document.getElementById('save-ind').textContent='✓ '+new Date().toLocaleTimeString('th-TH',{hour:'2-digit',minute:'2-digit'});},1500);}
+
+async function saveDraft(){var d=collectData();var id=currentId||('R-'+Date.now());await dbPut('records',{id:id,data:d,status:'draft',savedAt:Date.now(),label:d.name||'-',total:document.getElementById('sum-total').textContent});currentId=id;updateCount();toast('💾 บันทึกฉบับร่าง','ok');}
+async function saveComplete(){var d=collectData();if(!d.name){toast('กรุณากรอกชื่อ','err');return;}var id=currentId||('R-'+Date.now());await dbPut('records',{id:id,data:d,status:'done',savedAt:Date.now(),label:d.name,total:document.getElementById('sum-total').textContent});currentId=id;updateCount();toast('✅ บันทึกเสร็จ','ok');}
+
+function newForm(){
+  currentId=null;rows=[];
+  document.querySelectorAll('#receipt-paper input[type=text],#receipt-paper input[type=number]').forEach(function(inp){if(!['f-day','f-year','f-sig-reviewer','f-sig-approver','f-sig-receiver'].includes(inp.id))inp.value='';});
+  var now=new Date();s('f-day',now.getDate());s('f-year',now.getFullYear()+543);document.getElementById('f-month').selectedIndex=now.getMonth();
+  s('f-name','นาย อภิวัฒน์ สิงห์ซอม');s('f-taxid','1 1015 00907 49 6');s('f-addr','192');s('f-road','พระราม 2');s('f-tambon','บางมด');s('f-amphoe','จอมทอง');s('f-province','กรุงเทพมหานคร');s('f-payer','Linfox');
+  s('f-date-from','');s('f-date-to','');
+  clearSig('sig-reviewer');clearSig('sig-approver');clearSig('sig-receiver');
+  addRow();addRow();addRow();toast('📝 สร้างใบใหม่','ok');
+}
+
+function sendEmail(provider){
+  var d=collectData();
+  var total=document.getElementById('sum-total').textContent;
+  var subj='ขอเบิกค่าใช้จ่าย — '+d.name+' — ฿'+total;
+  var dateRange=d.dateFrom&&d.dateTo?' รอบวันที่ '+d.dateFrom+' ถึง '+d.dateTo:'';
+  var body='เรียน คุณย้อ\n\n'
+    +'รบกวนเบิกค่าใช้จ่าย '+d.name+dateRange+'\n'
+    +'จำนวนเงิน '+parseFloat(total.replace(/,/g,'')).toLocaleString('th-TH',{minimumFractionDigits:2})+' บาท '
+    +document.getElementById('sum-text').textContent+'\n'
+    +'รายละเอียดตามเอกสารแนบครับ\n\n'
+    +'ขอบคุณมากครับ\n'
+    +'WIYAKARN KASORNMALEE ( NUPUK )\n'
+    +'Assistant Manager - QA\n'
+    +'M +66(0) 855169041  E wiyakarn_ka@minor.com\n'
+    +'Minor International PCL., 88 The Parq Building, 11Fl. Ratchadaphisek Road,\n'
+    +'Klongtoey Subdistrict, Klongtoey District, Bangkok 10110';
+  if(provider==='gmail'){
+    window.open('https://mail.google.com/mail/?view=cm&fs=1&to=&su='+encodeURIComponent(subj)+'&body='+encodeURIComponent(body),'_blank');
+    toast('📨 เปิด Gmail','ok');
+  } else {
+    window.location.href='mailto:?subject='+encodeURIComponent(subj)+'&body='+encodeURIComponent(body);
+    toast('📨 เปิด Outlook @minor.com','ok');
+  }
+}
+
+function openPanel(){document.getElementById('panel-bg').classList.add('open');renderPanel();}
+function closePanel(){document.getElementById('panel-bg').classList.remove('open');}
+function setFilter(f,btn){curFilter=f;document.querySelectorAll('.panel-tabs button').forEach(function(b){b.classList.remove('active');});if(btn)btn.classList.add('active');renderPanel();}
+async function renderPanel(){
+  var all=await dbAll('records');all.sort(function(a,b){return b.savedAt-a.savedAt;});
+  if(curFilter!=='all')all=all.filter(function(r){return r.status===curFilter;});
+  var el=document.getElementById('panel-list');
+  if(!all.length){el.innerHTML='<div style="text-align:center;padding:2rem;color:var(--ink3)">ยังไม่มีรายการ</div>';return;}
+  el.innerHTML=all.map(function(r){
+    var sc=r.status==='done'?'st-done':'st-draft',st=r.status==='done'?'✅ เสร็จ':'📝 ร่าง';
+    return '<div class="di"><div style="display:flex;align-items:center;gap:5px"><div class="di-r">'+r.label+'</div><span class="st-b '+sc+'">'+st+'</span>'+(currentId===r.id?'<span class="st-b" style="background:var(--blu2);color:var(--blu)">กำลังแก้ไข</span>':'')+'</div><div class="di-s">ยอด: ฿'+(r.total||'0')+'</div><div class="di-d">'+new Date(r.savedAt).toLocaleString('th-TH')+'</div><div class="di-a"><button class="di-b" data-fn="load" data-id="'+r.id+'">📂 เปิด</button><button class="di-b del" data-fn="del" data-id="'+r.id+'">🗑️</button></div></div>';
+  }).join('');
+  el.querySelectorAll('.di-b').forEach(function(btn){btn.addEventListener('click',function(e){e.stopPropagation();if(btn.dataset.fn==='load')loadRec(btn.dataset.id);else delRec(btn.dataset.id);});});
+}
+async function loadRec(id){var r=await dbGet('records',id);if(!r)return;currentId=r.id;restoreData(r.data);closePanel();toast('📂 โหลด: '+r.label,'ok');}
+async function delRec(id){if(!confirm('ลบ?'))return;await dbDel('records',id);if(currentId===id){currentId=null;newForm();}updateCount();renderPanel();toast('🗑️ ลบแล้ว','ok');}
+async function updateCount(){var a=await dbAll('records');document.getElementById('rec-count').textContent=a.length;}
+
+function toast(m,t){var c=document.getElementById('toasts');var d=document.createElement('div');d.className='toast '+(t||'');d.textContent=m;c.appendChild(d);setTimeout(function(){d.style.opacity='0';d.style.transition='.3s';setTimeout(function(){d.remove();},300);},3000);}
+document.getElementById('panel-bg').addEventListener('click',function(e){if(e.target===this)closePanel();});
+init();
+</script>
+</body></html>
