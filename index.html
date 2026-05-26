@@ -97,6 +97,7 @@ body{background:var(--bg);font-family:Sarabun,sans-serif;color:var(--ink);font-s
 </style>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
 <body>
 <div id="login-screen" style="display:none"></div>
@@ -638,26 +639,22 @@ function initSigs(){
     function end(){
       if(!drawing) return;
       drawing=false;
-      // trigger autosave when signature changed
       try{autoSave();}catch(e){}
     }
 
-    // Mouse
     c.addEventListener('mousedown',function(e){start(e.offsetX,e.offsetY);});
     c.addEventListener('mousemove',function(e){if(!drawing)return;drawLine(e.offsetX,e.offsetY);});
     c.addEventListener('mouseup',end);
     c.addEventListener('mouseleave',end);
 
-    // Touch (mobile)
     c.addEventListener('touchstart',function(e){
       e.preventDefault();
-      drawing=true;
       var t=e.touches[0], r=c.getBoundingClientRect();
       start(t.clientX-r.left, t.clientY-r.top);
     }, {passive:false});
     c.addEventListener('touchmove',function(e){
       e.preventDefault();
-      if(!drawing)return;
+      if(!drawing) return;
       var t=e.touches[0], r=c.getBoundingClientRect();
       drawLine(t.clientX-r.left, t.clientY-r.top);
     }, {passive:false});
@@ -698,7 +695,49 @@ function restoreData(d){
 }
 
 var saveTimer;
-function autoSave(){clearTimeout(saveTimer);saveTimer=setTimeout(async function(){if(!currentId)return;var d=collectData();var rec=await dbGet('records',currentId);if(rec){rec.data=d;rec.savedAt=Date.now();rec.label=d.name||'-';await dbPut('records',rec);}document.getElementById('save-ind').textContent='✓ '+new Date().toLocaleTimeString('th-TH',{hour:'2-digit',minute:'2-digit'});},1500);}
+
+// ── AUTO DRAFT + AUTO LOAD LATEST ───────────
+async function loadLatestDraft(){
+  if(!db) return;
+  var all=await dbAll('records');
+  if(!all || !all.length) return;
+  all.sort(function(a,b){return (b.savedAt||0)-(a.savedAt||0);});
+  // prefer latest draft
+  var draft=all.find(function(r){return r.status==='draft';});
+  var rec=draft || all[0];
+  if(!rec) return;
+  currentId=rec.id;
+  restoreData(rec.data);
+  toast('📝 โหลดฉบับร่างล่าสุด', 'ok');
+}
+
+async function ensureAutoDraft(){
+  if(currentId) return;
+  // สร้าง draft ทันทีเมื่อเริ่มกรอก
+  var d=collectData();
+  currentId='R-'+Date.now();
+  await dbPut('records',{id:currentId,data:d,status:'draft',savedAt:Date.now(),label:(d.name||'-'),total:document.getElementById('sum-total').textContent});
+  updateCount();
+}
+
+function autoSave(){
+  clearTimeout(saveTimer);
+  saveTimer=setTimeout(async function(){
+    if(!db) return;
+    await ensureAutoDraft();
+    if(!currentId) return;
+    var d=collectData();
+    var rec=await dbGet('records',currentId);
+    if(rec){
+      rec.data=d;
+      rec.savedAt=Date.now();
+      rec.label=d.name||'-';
+      rec.total=document.getElementById('sum-total').textContent;
+      await dbPut('records',rec);
+    }
+    document.getElementById('save-ind').textContent='✓ '+new Date().toLocaleTimeString('th-TH',{hour:'2-digit',minute:'2-digit'});
+  },800);
+}
 
 async function saveDraft(){var d=collectData();var id=currentId||('R-'+Date.now());await dbPut('records',{id:id,data:d,status:'draft',savedAt:Date.now(),label:d.name||'-',total:document.getElementById('sum-total').textContent});currentId=id;updateCount();toast('💾 บันทึกฉบับร่าง','ok');}
 async function saveComplete(){var d=collectData();if(!d.name){toast('กรุณากรอกชื่อ','err');return;}var id=currentId||('R-'+Date.now());await dbPut('records',{id:id,data:d,status:'done',savedAt:Date.now(),label:d.name,total:document.getElementById('sum-total').textContent});currentId=id;updateCount();toast('✅ บันทึกเสร็จ','ok');}
@@ -757,6 +796,18 @@ async function delRec(id){if(!confirm('ลบ?'))return;await dbDel('records',id
 async function updateCount(){var a=await dbAll('records');document.getElementById('rec-count').textContent=a.length;}
 
 function toast(m,t){var c=document.getElementById('toasts');var d=document.createElement('div');d.className='toast '+(t||'');d.textContent=m;c.appendChild(d);setTimeout(function(){d.style.opacity='0';d.style.transition='.3s';setTimeout(function(){d.remove();},300);},3000);}
+
+
+async function init(){
+  await openDB();
+  initSigs();
+  await loadFieldMemory();
+  // defaults
+  newForm();
+  await updateCount();
+  // load last draft automatically
+  await loadLatestDraft();
+}
 document.getElementById('panel-bg').addEventListener('click',function(e){if(e.target===this)closePanel();});
 init();
 </script>
